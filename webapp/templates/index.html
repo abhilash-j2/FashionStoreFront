@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{{ url_for('static',filename='fontawesome-free-5.15.3-web/css/all.min.css')}} " >
+    <link rel="stylesheet" href="{{ url_for('static',filename='materialize/css/materialize.min.css')}} " media="screen,projection"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Store Front</title>
+    
+</head>
+<body>
+    <script type="text/javascript" src="{{ url_for('static',filename='fontawesome-free-5.15.3-web/js/all.min.js')}} "></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='materialize/js/materialize.min.js')}} "></script>
+
+
+    
+    <nav>
+        <div class="nav-wrapper">
+        <a href="#!" class="brand-logo center"><i class="fas fa-vest-patches"></i></a>
+        <ul class="left hide-on-med-and-down">
+            <li><a href="#"><i class="fas fa-"></i></a></li>
+            <li><a href="#">Browse</a></li>
+            <li><a href="#">Preference Learner</a></li>
+            <li class="active"><a href="collapsible.html">JavaScript</a></li>
+        </ul>
+        </div>
+    </nav>
+    
+    <div class="maindiv">
+        <div class="row">
+            {% block body %} {% endblock %}
+        </div>
+    </div>
+</body>
+</html>

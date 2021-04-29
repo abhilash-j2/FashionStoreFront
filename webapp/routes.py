@@ -3,8 +3,8 @@ from flask import render_template, redirect, url_for, flash, get_flashed_message
 #from webapp.module import Item
 from webapp.forms import RegisterForm, LoginForm
 from webapp.module import User #,Item
-from webapp import db
-from flask_login import login_user, logout_user, login_required
+from webapp import db, login_manager
+from flask_login import login_user, logout_user, login_required, current_user
 
 @app.route('/')
 @app.route('/home')
@@ -80,3 +80,8 @@ def product_page(product_id):
     }
 
     return render_template("productPage.html", product_info=product_info)
+
+@app.route('/rate')
+def rating_page():
+    print((current_user.username,current_user.id))
+    return "done"

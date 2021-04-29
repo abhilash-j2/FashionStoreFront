@@ -131,3 +131,6 @@ dmypy.json
 
 # ignoring the images folder
 webapp/static/images/women/
+
+# properties file
+*.prop

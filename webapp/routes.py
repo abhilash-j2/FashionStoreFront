@@ -44,7 +44,7 @@ def login_page():
         if attempted_user and attempted_user.check_password_correction(attempted_password=form.password1.data):
             login_user(attempted_user)
             flash(f'Success! you are logged in as: {attempted_user.username}', category='success')
-            return redirect(url_for('home_page'))
+            return redirect(url_for('homepage'))
 
         else:
             flash('Username and Password are not a match! Please try again', category='danger')
@@ -57,4 +57,26 @@ def logout_page():
     return redirect(url_for('home_page'))
 
 
+@app.route("/homepage")
+@login_required
+def homepage():
+    return render_template("homepage.html")
 
+@app.route("/product/<int:product_id>")
+def product_page(product_id):
+    # Pass product id on click of product image
+    # Make db call to get product image paths
+    # pass to template
+    print(product_id)
+    img_path_array = [
+    "women/dresses/casual_and_day_dresses/54686996/54686996_0.jpeg",
+    "women/dresses/casual_and_day_dresses/54686996/54686996_1.jpeg",
+    "women/dresses/casual_and_day_dresses/54686996/54686996_3.jpeg"]
+
+    product_info = {
+        'img_path_array' : img_path_array,
+        'ratings' : 3,
+        'has_user_rated': False
+    }
+
+    return render_template("productPage.html", product_info=product_info)

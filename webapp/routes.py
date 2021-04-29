@@ -3,8 +3,8 @@ from flask import render_template, redirect, url_for, flash, get_flashed_message
 #from webapp.module import Item
 from webapp.forms import RegisterForm, LoginForm
 from webapp.module import User #,Item
-from webapp import db
-from flask_login import login_user, logout_user, login_required
+from webapp import db, login_manager
+from flask_login import login_user, logout_user, login_required, current_user
 
 @app.route('/')
 @app.route('/home')
@@ -56,5 +56,7 @@ def logout_page():
     flash('You have been logged out!', category='info')
     return redirect(url_for('home_page'))
 
-
-
+@app.route('/rate')
+def rating_page():
+    print((current_user.username,current_user.id))
+    return "done"

@@ -2,7 +2,7 @@ from webapp import app
 from flask import render_template, redirect, url_for, flash, get_flashed_messages
 #from webapp.module import Item
 from webapp.forms import RegisterForm, LoginForm
-from webapp.module import User #,Item
+from webapp.module import User, Products, Images
 from webapp import db, login_manager
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -68,15 +68,23 @@ def product_page(product_id):
     # Make db call to get product image paths
     # pass to template
     print(product_id)
+    product = Products.query.filter_by(product_id=product_id).first()
+    images = Images.query.filter_by(product_id = product_id, is_main_image=True).all()
+    print(product)
+    print(product.images)
+    print(product.interactions)
+    print(images)
     img_path_array = [
     "women/dresses/casual_and_day_dresses/54686996/54686996_0.jpeg",
     "women/dresses/casual_and_day_dresses/54686996/54686996_1.jpeg",
     "women/dresses/casual_and_day_dresses/54686996/54686996_3.jpeg"]
 
     product_info = {
-        'img_path_array' : img_path_array,
-        'ratings' : 3,
-        'has_user_rated': False
+        'img_path_array' : [image.image_path for image in product.images],
+        'avg_rating' : 2.3,
+        'user_rating' : 3,
+        'has_user_rated': False,
+        'product_name' : ""
     }
 
     return render_template("productPage.html", product_info=product_info)

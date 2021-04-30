@@ -1,0 +1,74 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Fashion Store | Browse Page
+{% endblock %}
+
+
+{% block body %}
+
+<h3>
+    Browse page
+</h3>
+
+<div class="row">
+    <div class="container">
+        <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">search</i>
+              <input type="text" id="autocomplete-input" class="autocomplete">
+              <label for="autocomplete-input">Search</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var myData={
+      "Apple": null,
+      "Microsoft": null,
+      "Google": 'https://placehold.it/250x250'
+    };
+   
+    
+
+$(document).ready(function() {
+    //myData = {{ autocomplete_options["options"] }}  ;
+    fetch("/product_names")
+            .then(response => {
+            return response.json();
+            })
+            .then(data => {
+                myData = data;
+                $('input.autocomplete').autocomplete({
+                    data: myData ,
+                    limit: 20, // The max amount of results that can be shown at once. Default: Infinity.
+                    onAutocomplete: function(val) {
+                    // Callback function when value is autcompleted.
+                        console.log(val)
+                    },
+                    minLength: 3, // The minimum length of the input for the autocomplete to start. Default: 1.
+    });
+            } );
+    
+    //get reference to the password element
+    var searchbar = document.getElementById("autocomplete-input");
+    //bind the onkeypress event to the password field
+    searchbar.onkeypress = function(event){
+        checkEnterPressed(this,event);
+        event.cancelBubble = true;
+        if (event.stopPropagation) event.stopPropagation();
+    };
+    
+    function checkEnterPressed(obj, event){
+        //console.log(obj, event.keyCode);
+        //we are checking for ENTER key here, 
+        //you can check for other key Strokes here as well
+        if(event.keyCode === 13){
+            console.log("Search text was submitted by ENTER key!");
+        }
+    }
+    
+});
+</script>
+{% endblock %}

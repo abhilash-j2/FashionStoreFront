@@ -1,18 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'index.html' %}
 {% block title %}
-    Register Page
+    Fashion Store | Register Page
 {% endblock %}
 
 
-{% block content %}
+{% block body %}
 <body class='text-center'>
-    <div class="container">
-        <form method="POST" class="form-register" style="color:white">
+    <div class="container ">
+        <form method="POST" class="form-register">
             {{ form.hidden_tag() }}
-            <img class="mb-4" src="https://res.cloudinary.com/jimshapedcoding/image/upload/v1597332609/android-icon-192x192_ove2a7.png" alt="">
-            <h1 class="h3 mb-3 font-weight-normal">
+            <div class="center padding-top">
+                <img class="responsive-img circle" src="{{url_for('static',filename='images/FashionStoreLogo2.png')}}" style="height:25em;margin:-1em; padding-top:1em" alt="">
+            </div>
+            <h3 class="h3 m3 font-weight-normal">
                 Please Create your Account
-            </h1>
+            </h3>
             <br>
             {{ form.username.label() }}
             {{ form.username(class="form-control", placeholder='User Name') }}
@@ -26,15 +28,20 @@
             {{ form.password2.label() }}
             {{ form.password2(class="form-control", placeholder='Confirm Password') }}
 
-            <div class='checkbox mb-3'>
-                <h6>Already have an account?</h6>
-                <a class='btn btn-sm btn-secondary' href="{{ url_for('login_page') }}">Login</a>
-            </div>
-
-
+           
             <br>
-            {{ form.submit(class='btn btn-lg btn-block btn-primary') }}
+            <br>
+            {{ form.submit(class='btn btn-lg btn-block btn-primary center') }}
         </form>
+        <br>
+        <br>
+        <div class='checkbox center m3'>
+            <h6>Already have an account?</h6>
+            <a class='btn btn-medium btn-secondary' href="{{ url_for('login_page') }}">Login</a>
+        </div>
+
+
+
     </div>
 </body>
 {% endblock %}

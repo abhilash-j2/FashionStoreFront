@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+{% block title %}
+    Fashion Store | Preference Learner Page
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h3>
+            Preference Learner
+        </h3>
+    </div>
+    {% if no_more_products %}
+        <div class="row center">
+            <h3>
+                You have rated all available products !
+            </h3>
+            <p>
+                Visit us later or browse to modify ratings
+            </p>
+        </div>
+    {% else %}
+        <div class="row center">
+            {% include ["productInfo.html"] %}
+            
+           
+            <a class="btn btn-medium " href="/preferenceLearner">
+                    Randomize 
+            </a>
+            <h6>
+                Total Ratings provided so far : {{ no_rated + " / " + total_products }}
+            </h6>
+        </div>
+    {% endif %}
+    
+{% endblock %}
+

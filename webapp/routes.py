@@ -1,5 +1,5 @@
 from webapp import app
-from flask import render_template, redirect, url_for, flash, get_flashed_messages, send_file, make_response, request
+from flask import render_template, redirect, url_for, flash, get_flashed_messages, send_file, make_response, request, safe_join
 import requests
 #from webapp.module import Item
 from webapp.forms import RegisterForm, LoginForm
@@ -12,7 +12,11 @@ from skimage.io import imread
 import pytz
 from datetime import datetime
 import json
+import random
 
+from sqlalchemy import select, func
+
+from flask_cachecontrol import dont_cache
 
 @app.route('/home')
 def home_page():
@@ -68,12 +72,9 @@ def logout_page():
 def homepage():
     return render_template("homepage.html")
 
-@app.route("/product/<int:product_id>")
-def product_page(product_id):
-    # Pass product id on click of product image
-    # Make db call to get product image paths
-    # pass to template
-    print(product_id)
+
+
+def get_product_info(product_id):
     product = Products.query.filter_by(product_id=product_id).first()
     images = Images.query.filter_by(product_id = product_id, is_main_image=True).all()
     interaction = db.session.query(Interactions).filter_by(user_id=current_user.id, product_id=product.product_id).all()
@@ -97,6 +98,16 @@ def product_page(product_id):
         'product_name' : product.product_name,
         'product_id' : product.product_id
     }
+    return product_info
+
+@app.route("/product/<int:product_id>")
+@dont_cache()
+def product_page(product_id):
+    # Pass product id on click of product image
+    # Make db call to get product image paths
+    # pass to template
+    print(product_id)
+    product_info = get_product_info(product_id)
  
     return render_template("productPage.html", product_info=product_info)
 
@@ -105,14 +116,55 @@ def calc_avg_rating(product):
     return avg_rating
 
 @app.route('/imageSearch')
+@dont_cache()
 @login_required
 def imageSearch():
     return render_template("image_search.html")
 
+
+def get_unrated_product_ids(user_id):
+    # Get rated products for user
+    interactions = db.session.query(Interactions).filter_by(user_id=user_id).all()
+    rated_products = [interaction.product_id for interaction in interactions]
+    # Get all the products
+    # products = db.session.query(Products).all()
+    # products = [product.product_id for product in products]
+
+    total_rated = len(rated_products)
+    
+    with open("webapp/static/product_ids.json", "r") as f:
+        products = json.load(f)
+    total_products = len(products)
+    # Get unrated 
+    products = list(set(products) - set(rated_products))
+    return {
+        "unrated_product_ids" : products,
+        "total_rated" : total_rated,
+        "total_products" : total_products
+    }
+
 @app.route('/preferenceLearner')
+@dont_cache()
 @login_required
 def preferenceLearner():
-    return render_template("preference_learner.html")
+    product_info = None
+
+    user_id = current_user.id
+    products_dict = get_unrated_product_ids(user_id)
+
+    no_more_products = (products_dict["total_rated"] == products_dict["total_products"] )
+    unrated_products = products_dict["unrated_product_ids"]
+
+    if not no_more_products:
+        random.shuffle(unrated_products)
+        product_id = unrated_products[0]
+        product_info = get_product_info(product_id)
+
+
+    return render_template("preference_learner.html", product_info=product_info, 
+                        no_more_products= no_more_products,
+                        no_rated = str(products_dict["total_rated"]) ,
+                        total_products = str(products_dict["total_products"] ))
 
 @app.route('/rate',methods=['POST'])
 def rate_product():
@@ -189,6 +241,7 @@ def get_image_vector(image):
 
 
 @app.route('/upload', methods=['GET','POST'])
+@login_required
 @cross_origin(origins='*', send_wildcard=True)
 def upload_file():
     if request.method == 'POST':
@@ -205,4 +258,25 @@ def upload_file():
             # card_data = query_es(features)
             print(features)
             #return render_template('upload_result.html', mainimg = get_base64_from_img(img_arr), card_data = card_data )
+    return "done"
 
+@app.route('/browse')
+@login_required
+def browsePage():
+    #my_sub = db.session.query(Products.sub_category, func.count(Products.sub_category).label('count')).group_by(Products.sub_category)
+    #my_sub = db.session.query(Products.product_name, func.count(Products.product_name).label('count')).group_by(Products.product_name)
+    #my_sub = my_sub.all()
+    #print(type(my_sub[0][0]))
+    # db.session.query(TestModel, my_sub.c.count).outerjoin(my_sub, TestModel.name==my_sub.c.name).all()
+    #my_sub= dict([ ( str(x[0]).strip().encode('utf-8').decode('unicode-escape'), "null" ) for x in my_sub ])
+    #print(type(my_sub))
+    #print("-----------")
+    #with open("webapp/static/product_names.json", "w") as f:
+    #    json.dump(my_sub,f, indent=2)
+    return render_template("browsePage.html", autocomplete_options ="json.dumps(my_sub)")
+
+@app.route('/product_names')
+def product_names():
+    safe_path = safe_join('static', "product_names.json")
+    print(safe_path)
+    return send_file(safe_path, as_attachment=False)

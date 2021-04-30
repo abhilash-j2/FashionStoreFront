@@ -1,0 +1,67 @@
+<div class="row">
+    <div class="container"> 
+        <div class="center">
+            <h5>
+                {{product_info['product_name']}}
+            </h5>
+        </div>
+        <div class="carousel" >
+            {% for img_path in product_info['img_path_array'] %}
+                <a class="carousel-item" href="#"><img src="{{ url_for('static',filename='images/'+img_path)}}"></a>
+
+            {% endfor %}
+        </div>
+        <div class="container center " style="padding: 2em;"> 
+            <div id="rater" ></div>
+            <p >
+                Average Rating from all users: <span id="avg_rating"> {{product_info['avg_rating']}}</span>
+            </p> 
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('.carousel').carousel({padding:1});
+        setInterval(function() {
+            $('.carousel').carousel('next');
+        }, 2500);
+        var starRatingStep = raterJs( {
+            starSize:52, 
+            step:0.5, 
+            element:document.querySelector("#rater"), 
+            rateCallback:function rateCallback(rating, done) {
+                this.setRating(rating); 
+                console.log("rating set to : "+ JSON.stringify(rating));
+                makePostReq(rating);
+                done(); 
+            }
+        }); 
+        var makePostReq = function(rating){
+            req_body = { product_id: {{ product_info["product_id"] }} , rating: rating }
+            console.log(req_body)
+            const request = new Request('/rate', {method: 'POST', body: JSON.stringify(req_body)});
+            
+            fetch(request)
+                .then(response => {
+                    if (response.status === 200) {
+                        res = response.json()
+                        console.log("Response:"+ JSON.stringify(res))
+                        
+                    return res;
+                    } else {
+                    throw new Error('Something went wrong on api server!');
+                    }
+                }).then(response => {
+                    console.debug(response);
+                    document.getElementById("avg_rating").innerHTML = response["avg_rating"];
+                }).catch(error => {
+                    console.error(error);
+                });
+
+        };
+        {% if product_info['has_user_rated'] %}
+            starRatingStep.setRating({{ product_info["user_rating"] }})  
+            console.log("set to previous user rating")
+        {% endif %}
+    })
+</script>

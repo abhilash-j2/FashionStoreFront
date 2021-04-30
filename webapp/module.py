@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(length=60), nullable=False)
     #budget = db.Column(db.Integer(), nullable=True, default=1000)
     # items = db.relationship('Item',backref='owned_user', lazy=True)
-    interactions = db.relationship('Interactions', backref='user', lazy=True)
+    interactions = db.relationship('Interactions', backref='user', lazy=False)
 
     @property
     def password(self):
@@ -29,17 +29,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User : {self.username} , id : {self.id} >'
 
-# class Item(db.Model):
-#     id = db.Column(db.Integer(),primary_key=True)
-#     name = db.Column(db.String(length=30), nullable=False, unique=True)
-#     price = db.Column(db.Integer(), nullable=False)
-#     barcode = db.Column(db.String(length=12), nullable=False, unique=True)
-#     description = db.Column(db.String(length=1024), nullable=False, unique=True)
-#     owner = db.Column(db.Integer(),db.ForeignKey('user.id'))
-    
-#     def __repr__(self):
-#         return f'Item {self.name}'
-
 class Products(db.Model):
     product_id = db.Column(db.Integer(),primary_key=True)
     category = db.Column(db.String(length=70),nullable=False)
@@ -47,7 +36,7 @@ class Products(db.Model):
     product_number = db.Column(db.Integer(),nullable=False)
     product_name = db.Column(db.String(length=100),nullable=False)
     images = db.relationship('Images',backref='products', lazy="subquery")
-    interactions = db.relationship('Interactions', backref='products', lazy=True)
+    interactions = db.relationship('Interactions', backref='products', lazy=False)
 
     def __repr__(self):
         return f'<Product : {self.product_id} number : {self.product_number} | {self.category.strip()} | {self.sub_category.strip()}>'

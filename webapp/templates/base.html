@@ -32,7 +32,7 @@
                             </a>
                         </li>-->
                         <li class="nav-item ">
-                            <a class="nav-link">Welcom,{{ current_user.username }}</a>
+                            <a class="nav-link">Welcome,{{ current_user.username }}</a>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
@@ -55,7 +55,7 @@
             {% if messages %}
                 {% for category, msg in messages %}
                     <div class="alert alert-{{ category }}">
-                        <button type="button",class='m1-2 mb-1 close', data-dismiss="alert" aria-label="close">
+                        <button type="button" class='m1-2 mb-1 close' data-dismiss="alert" aria-label="close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         {{ msg }}

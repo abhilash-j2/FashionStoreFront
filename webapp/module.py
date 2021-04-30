@@ -45,6 +45,7 @@ class Products(db.Model):
     category = db.Column(db.String(length=70),nullable=False)
     sub_category = db.Column(db.String(length=70),nullable=False)
     product_number = db.Column(db.Integer(),nullable=False)
+    product_name = db.Column(db.String(length=100),nullable=False)
     images = db.relationship('Images',backref='products', lazy="subquery")
     interactions = db.relationship('Interactions', backref='products', lazy=True)
 

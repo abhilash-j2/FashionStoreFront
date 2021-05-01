@@ -12,7 +12,7 @@
     <div class="container">
         <div class="row">
             <div class="input-field col s12">
-                <form action="/searchText" method="POST" id="searchform">
+                <form action="/searchText" autocomplete="off" method="POST" id="searchform">
                     <i class="material-icons prefix">search</i>
               
                 <input type="text" id="autocomplete-input" class="autocomplete" name="query">
@@ -31,27 +31,32 @@
     </div>
 </div>
 
-<div class="row">
-    
-    {% for product in products %}
-    <div style="display: inline-block;">
-      <div class="card" style="display: inline-block; width: 210px;">
-        <div class="card-image" >
-          <img src="{{url_for('static', filename='images/' + product['image_path'])}}" class="img-responsive" style="height:300px; object-fit: scale-down;">
-          <span class="card-title">{{product["product_name"]}}</span>
+<div class="row center">
+    {% if products %}
+        {% for product in products %}
+        <div style="display: inline-block;">
+        <div class="card" style="display: inline-block; width: 210px;">
+            <div class="card-image" >
+            <img src="{{url_for('static', filename='images/' + product['image_path'])}}" class="img-responsive" style="height:300px; object-fit: scale-down;">
+            <span class="card-title">{{product["product_name"]}}</span>
+            </div>
+            <div class="card-content">
+            <p> {{product["product_name"]}}</p>
+            {% if product["score_final"] %}
+            <p> Similarity score: {{product["score_final"]}}</p>
+            {% endif %}
+            </div>
+            <div class="card-action">
+            <a href="/product/{{product['product_id']}}">View Product Page</a>
+            </div>
         </div>
-        <div class="card-content">
-          <p> {{product["product_name"]}}</p>
-          {% if product["score_final"] %}
-          <p> Similarity score: {{product["score_final"]}}</p>
-          {% endif %}
         </div>
-        <div class="card-action">
-          <a href="/product/{{product['product_id']}}">View Product Page</a>
-        </div>
-      </div>
+        {% endfor %}
+    {% else %}
+    <div class="row center" style="padding-top:5em">
+        <h5>We found no results that match your query, try a different one</h5>
     </div>
-    {% endfor %}
+    {% endif %}
 
 </div>
 </div>

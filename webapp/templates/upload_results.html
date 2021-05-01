@@ -16,17 +16,39 @@
             </div>
             </div>
             <div class="center">
-                <input type="submit" value="Upload" class="btn btn-xl">
+                <input type="submit" value="Upload" class="btn btn-xl" id ="upload-btn">
 
             </div>
              
         </form>
     </div>
 </div>
-    
+<div class="center" style="padding-top:3em">
+    <div class="preloader-wrapper big inactive" style="visibility:collapse">
+        <div class="spinner-layer spinner-blue-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+</div>
+
     <div class="center" style="height: 450px;">  
         <img style = " object-fit: contain; object-position: center;" src="data:image/jpeg;base64,{{ mainimg}}"> </img>   
     </div>
+<script>
+    $(document).ready(function() {
+        uploadbtn = document.getElementById("upload-btn")
+        uploadbtn.onclick = function(){
+            spinner = document.getElementsByClassName("preloader-wrapper")
+            $(spinner).removeClass("inactive").addClass("active").css("visibility","visible")
+        }
+    });
 
+</script>
     {% include ["similar_images.html"] %}
 {% endblock %}

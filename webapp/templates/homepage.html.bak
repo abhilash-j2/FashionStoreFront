@@ -14,7 +14,7 @@
           <h5 class="header col s12 light teal-text">We are an online portal to rate your favorite dresses</h5>
         </div>
         <div class="row center">
-          <a href="/browse" id="browse-button" class="btn-large waves-effect waves-light teal lighten-1">Get Started and Browse collection</a>
+          <a href="/browse" id="-button" class="btn-large waves-effect waves-light teal lighten-1">Get Started and Browse collection</a>
         </div>
         <br><br>
 

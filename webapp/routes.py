@@ -7,7 +7,7 @@ from webapp.module import User, Products, Images, Interactions
 from webapp import db, login_manager, cross_origin
 from flask_login import login_user, logout_user, login_required, current_user
 
-from webapp.elasticModules import recommendations_for_textsearch_query
+from webapp.elasticModules import recommendations_for_textsearch_query, get_visual_similarity
 
 import io
 from skimage.io import imread
@@ -16,20 +16,14 @@ from datetime import datetime
 import json
 import random
 import pandas as pd
+import matplotlib.pyplot as plt
+import base64
+
+plt.switch_backend('agg')
 
 from sqlalchemy import select, func
 
 from flask_cachecontrol import dont_cache
-
-@app.route('/home')
-def home_page():
-    return render_template('home.html')
-
-# @app.route('/market')
-# @login_required
-# def market_page():
-#     items = Item.query.all()
-#     return render_template('market.html',items=items)
 
 @app.route('/register', methods=['GET','POST'])
 def register_page():
@@ -75,7 +69,27 @@ def logout_page():
 def homepage():
     return render_template("homepage.html")
 
-
+def get_product_info_by_number(product_number):
+    product = Products.query.filter_by(product_number=product_number).first()
+    product_id = product.product_id
+    images = Images.query.filter_by(product_id = product_id, is_main_image=True).all()
+    interaction = db.session.query(Interactions).filter_by(user_id=current_user.id, product_id=product.product_id).all()
+    print(product)
+    print(product.images)
+    print(product.interactions)
+    print(images)
+    
+    has_user_rated = True if len(interaction) > 0 else False
+    user_rating = interaction[0].rating if len(interaction) > 0 else 0
+    product_info = {
+        'img_path_array' : [image.image_path for image in product.images],
+        'avg_rating' : calc_avg_rating(product),
+        'user_rating' : user_rating,
+        'has_user_rated': has_user_rated,
+        'product_name' : product.product_name,
+        'product_id' : product.product_id
+    }
+    return product_info
 
 def get_product_info(product_id):
     product = Products.query.filter_by(product_id=product_id).first()
@@ -203,33 +217,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-def query_es(user_query):
-    script_query = {
-        "script_score": {
-            "query": {"match_all": {}},
-            "script": {
-                "source": "cosineSimilarity(params.query_vector, doc['image_vector'])",
-                "params": {"query_vector": user_query}
-                        }
-                    }
-                }
-    
-    cards = []
-    try:    
-        with Elasticsearch([{"host": host, "port":"9200"}]) as es: 
-            res = es.search(index='similarity-search',body={"from":0,"size": 5,"query": script_query,"_source":["picture_id","product_id"]})
-            for dic in res['hits']['hits']:
-                prod_id = dic['_source']['product_id']
-                pic_id = dic['_source']['picture_id']
-                score = dic['_score']
-                picture = url_process_imgdict(df[df["picture_id"]==pic_id].to_dict("records")[0]["picture"])
-                cards.append({"prod_id" : prod_id, "pic_id" : pic_id, "score":score, "img" : picture})
-
-    except Exception as e:
-        print(e)   
-
-    return cards
-
 
 MODEL_URL = "http://ec2-18-217-197-173.us-east-2.compute.amazonaws.com:8000/get-features"
 def get_image_vector(image):
@@ -254,16 +241,43 @@ def upload_file():
                 img_arr = imread(byte_io)
 
             img_arr = img_arr[:,:,:3]
+            print(".. Querying tensorflow ...")
             features = get_image_vector(img_arr)
-            # card_data = query_es(features)
-            print(features)
-            #return render_template('upload_result.html', mainimg = get_base64_from_img(img_arr), card_data = card_data )
-    return "done"
+            print(".. Obtained tensorflow vector ...")
+            card_data = get_visual_similarity(features)
+            print(card_data)
+            query = db.session.query(Products).filter(Products.product_number.in_(card_data["product_number"].tolist()))
+            prods = query.all()
+            prod_df  = pd.DataFrame([prod.to_dict() for prod in prods])
+            print("-----")
+            prod_ids = prod_df["product_id"].tolist()
+            print(prod_ids)
+            print(type(prod_ids))
+            images = db.session.query(Images).filter(Images.product_id.in_(prod_ids)).filter(Images.is_main_image == True).all()
+            images = pd.DataFrame([img.to_dict() for img in images])
+    
+            prod_df = prod_df.merge(images, on="product_id")
+            prod_df = prod_df.merge(card_data, on="product_number")
+            prod_df = prod_df.to_dict("records")
+            return render_template('upload_results.html', mainimg = get_base64_from_img(img_arr), card_data = prod_df )
+    return "done upload"
+
+
+def get_base64_from_img(img_arr):
+    plt.imshow(img_arr)
+    plt.axis("off")
+    with io.BytesIO() as figfile:
+        plt.savefig(figfile, format='png')
+        figfile.seek(0)
+        figdata_png = base64.b64encode(figfile.getvalue()).decode("utf-8")
+    return figdata_png
+
 
 @app.route('/browse')
 @login_required
 def browsePage():
-    return render_template("imageCards.html",products=[])
+    
+    return render_template("imageCards.html",products=[], previous_query=None)
     return render_template("browsePage.html")
 
 
@@ -300,7 +314,7 @@ def search_text():
     prod_df = prod_df.to_dict("records")
 
 
-    return render_template("imageCards.html",products=prod_df)
+    return render_template("imageCards.html",products=prod_df, previous_query=request_data)
 
 
 

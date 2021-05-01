@@ -1,10 +1,16 @@
 <div class="row center">
     {% for card in card_data %}
-        <div class="card text-center" style="width: 18rem;">
-            <p class="card-text display-6">{{ card["score"] }}</p>
-            <img src="data:image/jpeg;base64,{{ card['img'] }}" class="card-img-top" alt="...">
-            <div class="card-body">
-            <p class="card-text display-8">Product Id:{{ card["prod_id"] }}</p>
+        <div class="card text-center" style="width: 18rem; display: inline-block;">
+            <p class="card-text display-6">{{ card["final_score"] }}</p>
+            <div class="card-image" >
+                <img src="{{url_for('static', filename='images/' + card['image_path'])}}" class="img-responsive">
+                <span class="card-title">{{card["product_name"]}}</span>
+            </div>
+            <div class="card-content">
+            <p class="card-text display-8">Product Id:{{ card["product_id"] }}</p>
+            </div>
+            <div class="card-action">
+                <a href="/product/{{card['product_id']}}">View Product Page</a>
             </div>
         </div>
     {% endfor %}

@@ -12,14 +12,18 @@
     <div class="container">
         <div class="row">
             <div class="input-field col s12">
-              <i class="material-icons prefix">search</i>
-              <form action="/searchText" method="POST" id="searchform">
+                <form action="/searchText" method="POST" id="searchform">
+                    <i class="material-icons prefix">search</i>
+              
                 <input type="text" id="autocomplete-input" class="autocomplete" name="query">
                 <submit id="search-button" class="btn btn-medium right">Search</submit>
                 <label for="autocomplete-input">Search</label>
               </form>
-            
-              
+              {% if previous_query %}
+                <h6>
+                    Previous Query: {{ previous_query}}
+                </h6>
+                {% endif %}
             </div>
         </div>
     </div>

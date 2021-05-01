@@ -1,15 +1,30 @@
 {% extends "index.html" %}
 
 {% block body %}
-    <h1> Uploader Page</h1>
-    <div class="row text-center input-group input-group-lg">
-        <form action="/upload" method="POST" enctype="multipart/form-data"> 
-            <input type="file" name="file"> 
-            <input type="submit" value="Upload"> 
+<div class="container">
+    <h3> Uploader Page</h3>
+
+    <div>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="file-field input-field">
+            <div class="btn">
+                <span>File</span>
+                <input type="file" name="file">
+            </div>
+            <div class="file-path-wrapper">
+                <input class="file-path validate" type="text">
+            </div>
+            </div>
+            <div class="center">
+                <input type="submit" value="Upload" class="btn btn-xl">
+
+            </div>
+             
         </form>
     </div>
+</div>
     
-    <div class="text-center" style="height: 450px;">  
+    <div class="center" style="height: 450px;">  
         <img style = " object-fit: contain; object-position: center;" src="data:image/jpeg;base64,{{ mainimg}}"> </img>   
     </div>
 

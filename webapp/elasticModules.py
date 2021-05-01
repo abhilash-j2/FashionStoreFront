@@ -4,6 +4,7 @@ from jproperties import Properties
 from elasticsearch import Elasticsearch
 import pandas as pd
 import numpy as np
+import pickle
 
 def create_es_connection():
     config = Properties()
@@ -137,4 +138,72 @@ def recommendations_for_textsearch_query(query, number=10):
     
     frame = score(prod_no1,category1,sub_category1,search_phrase_value,*revised_prob)
     return frame
+
+
+
+def get_visual_similarity(image_vector):
+    import re
+
+    with open('webapp/static/final_dataframe','rb') as f:
+        image_df = pickle.load(f)
+
+    def query_es(user_query):
+        script_query = {
+                "script_score":{
+            "query":{
+                "match_all":{}
+            },
+            "script":{
+                "source":"cosineSimilarity(params.query_vector, 'image-vector')",
+                "params":{
+                    "query_vector": user_query
+                }
+            }
+        }
+        }
+        cards = []
+        try:    
+            config = Properties()
+
+            with open('elastic_search_config.prop','rb') as f:
+                config.load(f)
+
+            with Elasticsearch([{'host':config.get('endpoint').data,'port':config.get('port').data}]) as es: 
+                res = es.search(index='image-level',body={"from":0,"size": 50,"query": script_query})
+                for dic in res['hits']['hits']:
+                    prod_no = int(re.findall("[0-9]+",dic['_source']['image-path'])[0])
+                    pic_id = int(dic['_id'])-1
+                    score = dic['_score']
+                    picture = dic['_source']['image-path']  
+                    cards.append({"prod_id" : prod_no, "pic_id" : pic_id, "score":score, "img" : picture})
+                cards_df = pd.DataFrame(cards).groupby('prod_id').agg(max_score=('score',max)).reset_index(drop=False).sort_values(by='max_score',ascending=False)
+                cards_df = cards_df.rename(columns={"prod_id": "product_number", "max_score": "final_score"})
+                return cards_df
+        except Exception as e:
+            print(e)   
+    return query_es(image_vector)
+
+
+
+
+
+# user_query = np.load('/content/drive/MyDrive/npz files /0.npz')['arr_0']
+
+# query_es(user_query)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

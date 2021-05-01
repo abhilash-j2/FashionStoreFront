@@ -1,2 +1,3 @@
 - [Autocomplete](https://stackoverflow.com/questions/47331651/navbar-with-search-box-materializecss)
 - [Enter key for search bar](https://www.mysamplecode.com/2012/07/enter-key-javascript-jquery-extjs.html)
+- [Visual Similarity Search](https://towardsdatascience.com/image-similarity-detection-in-action-with-tensorflow-2-0-b8d9a78b2509)

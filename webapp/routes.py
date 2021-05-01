@@ -37,7 +37,7 @@ def register_page():
 
         login_user(user_to_create)
         flash(f'Account created successfully! You are now logged in as  {user_to_create.username}', category='success')
-        return redirect(url_for('home_page'))
+        return redirect(url_for('homepage'))
     if form.errors != {}: # if there are no errors from the validations
         for err_msg in form.errors.values():
             flash(f'There was an error with creating a user: {err_msg}', category='danger')
@@ -222,8 +222,12 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+@app.route("/architecture")
+def architecture():
+    return render_template('architecture.html')
 
-MODEL_URL = "http://ec2-18-217-197-173.us-east-2.compute.amazonaws.com:8000/get-features"
+
+MODEL_URL = "http://ec2-18-220-172-175.us-east-2.compute.amazonaws.com:8000/get-features"
 def get_image_vector(image):
     dictToSend = {"image":image.tolist()}
     res = requests.post(MODEL_URL, json=dictToSend)

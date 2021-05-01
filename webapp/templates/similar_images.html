@@ -3,7 +3,7 @@
         <div class="card text-center" style="width: 18rem; display: inline-block;">
             <p class="card-text display-6">{{ card["final_score"] }}</p>
             <div class="card-image" >
-                <img src="{{url_for('static', filename='images/' + card['image_path'])}}" class="img-responsive">
+                <img src="{{url_for('static', filename='images/' + card['image_path'])}}" class="img-responsive" style="height:300px; object-fit: scale-down;">
                 <span class="card-title">{{card["product_name"]}}</span>
             </div>
             <div class="card-content">

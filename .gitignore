@@ -134,3 +134,5 @@ webapp/static/images/women/
 
 # properties file
 *.prop
+
+.vscode

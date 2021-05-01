@@ -3,7 +3,7 @@
     Fashion Store | Search Results
 {% endblock %}
 {% block body %}
-
+<div class="container">
 <h3>
     Browse page
 </h3>
@@ -34,10 +34,10 @@
 <div class="row">
     
     {% for product in products %}
-    <div style="height: 150px; width: 210px; display: inline-block;">
-      <div class="card" style="width: 200px; display: inline-block;">
+    <div style="display: inline-block;">
+      <div class="card" style="display: inline-block; width: 210px;">
         <div class="card-image" >
-          <img src="{{url_for('static', filename='images/' + product['image_path'])}}" class="img-responsive">
+          <img src="{{url_for('static', filename='images/' + product['image_path'])}}" class="img-responsive" style="height:300px; object-fit: scale-down;">
           <span class="card-title">{{product["product_name"]}}</span>
         </div>
         <div class="card-content">
@@ -54,7 +54,7 @@
     {% endfor %}
 
 </div>
-
+</div>
 
 <script>
     var myData={

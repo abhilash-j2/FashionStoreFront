@@ -7,7 +7,7 @@
         </div>
         <div class="carousel" >
             {% for img_path in product_info['img_path_array'] %}
-                <a class="carousel-item" href="#"><img src="{{ url_for('static',filename='images/'+img_path)}}"></a>
+                <a class="carousel-item" href="#"><img src="{{ url_for('static',filename='images/'+img_path)}}" style="height:300px; object-fit: scale-down;"></a>
 
             {% endfor %}
         </div>

@@ -16,14 +16,16 @@
                     <i class="material-icons prefix">search</i>
               
                 <input type="text" id="autocomplete-input" class="autocomplete" name="query">
-                <submit id="search-button" class="btn btn-medium right">Search</submit>
+                <!--<submit id="search-button" class="btn btn-medium right disabled">Search</submit>-->
                 <label for="autocomplete-input">Search</label>
               </form>
               {% if previous_query %}
+              <div class="center">
                 <h6>
                     Previous Query: {{ previous_query}}
                 </h6>
-                {% endif %}
+                </div>
+              {% endif %}
             </div>
         </div>
     </div>

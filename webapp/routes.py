@@ -114,14 +114,17 @@ def get_product_info(product_id):
 
 @app.route("/product/<int:product_id>")
 @dont_cache()
+@login_required
 def product_page(product_id):
     # Pass product id on click of product image
     # Make db call to get product image paths
     # pass to template
     print(product_id)
     product_info = get_product_info(product_id)
- 
-    return render_template("productPage.html", product_info=product_info)
+    
+    cards = text_search_workflow(product_info["product_name"])
+
+    return render_template("productPage.html", product_info=product_info, card_data= cards)
 
 def calc_avg_rating(product):
     avg_rating = 0 if len(product.interactions) == 0 else (sum([interaction.rating for interaction in product.interactions])/len(product.interactions))
@@ -179,6 +182,7 @@ def preferenceLearner():
                         total_products = str(products_dict["total_products"] ))
 
 @app.route('/rate',methods=['POST'])
+@login_required
 def rate_product():
     request_data = json.loads(request.data)
     print(request.get_json())
@@ -201,6 +205,7 @@ def rate_product():
     return {"avg_rating": calc_avg_rating(product)}
 
 @app.route('/uploader')
+@login_required
 def uploader():
     # return "Homepageview"
     return render_template('uploader.html')
@@ -277,19 +282,14 @@ def get_base64_from_img(img_arr):
 @login_required
 def browsePage():
     
-    return render_template("imageCards.html",products=[], previous_query=None)
+    return render_template("imageCards.html",products=[])
     return render_template("browsePage.html")
 
 
-@app.route('/searchText', methods=["POST"])
-def search_text():
-    request_data = request.form["query"]
-    print(request.form)
-    #request_data = json.loads(request.data)
-    print(request_data)
-    result_df = recommendations_for_textsearch_query(request_data)
-    print(result_df)
-    print(result_df.info())
+def text_search_workflow(query):
+    result_df = recommendations_for_textsearch_query(query)
+    # print(result_df)
+    # print(result_df.info())
     #prod_number = result_df["product-number"]
     # result_df["product-number"] = result_df["product-number"].values.astype(int)
     #print(prod_number)
@@ -312,8 +312,16 @@ def search_text():
     print(prod_df.info())
     print("-Im----")
     prod_df = prod_df.to_dict("records")
+    return prod_df
 
 
+@app.route('/searchText', methods=["POST"])
+def search_text():
+    request_data = request.form["query"]
+    print(request.form)
+    #request_data = json.loads(request.data)
+    print(request_data)
+    prod_df = text_search_workflow(request_data)
     return render_template("imageCards.html",products=prod_df, previous_query=request_data)
 
 

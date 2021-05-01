@@ -7,12 +7,15 @@ from webapp.module import User, Products, Images, Interactions
 from webapp import db, login_manager, cross_origin
 from flask_login import login_user, logout_user, login_required, current_user
 
+from webapp.elasticModules import recommendations_for_textsearch_query
+
 import io
 from skimage.io import imread
 import pytz
 from datetime import datetime
 import json
 import random
+import pandas as pd
 
 from sqlalchemy import select, func
 
@@ -82,11 +85,6 @@ def get_product_info(product_id):
     print(product.images)
     print(product.interactions)
     print(images)
-
-    # img_path_array = [
-    # "women/dresses/casual_and_day_dresses/54686996/54686996_0.jpeg",
-    # "women/dresses/casual_and_day_dresses/54686996/54686996_1.jpeg",
-    # "women/dresses/casual_and_day_dresses/54686996/54686996_3.jpeg"]
     
     has_user_rated = True if len(interaction) > 0 else False
     user_rating = interaction[0].rating if len(interaction) > 0 else 0
@@ -231,6 +229,8 @@ def query_es(user_query):
         print(e)   
 
     return cards
+
+
 MODEL_URL = "http://ec2-18-217-197-173.us-east-2.compute.amazonaws.com:8000/get-features"
 def get_image_vector(image):
     dictToSend = {"image":image.tolist()}
@@ -263,17 +263,46 @@ def upload_file():
 @app.route('/browse')
 @login_required
 def browsePage():
-    #my_sub = db.session.query(Products.sub_category, func.count(Products.sub_category).label('count')).group_by(Products.sub_category)
-    #my_sub = db.session.query(Products.product_name, func.count(Products.product_name).label('count')).group_by(Products.product_name)
-    #my_sub = my_sub.all()
-    #print(type(my_sub[0][0]))
-    # db.session.query(TestModel, my_sub.c.count).outerjoin(my_sub, TestModel.name==my_sub.c.name).all()
-    #my_sub= dict([ ( str(x[0]).strip().encode('utf-8').decode('unicode-escape'), "null" ) for x in my_sub ])
-    #print(type(my_sub))
-    #print("-----------")
-    #with open("webapp/static/product_names.json", "w") as f:
-    #    json.dump(my_sub,f, indent=2)
-    return render_template("browsePage.html", autocomplete_options ="json.dumps(my_sub)")
+    return render_template("imageCards.html",products=[])
+    return render_template("browsePage.html")
+
+
+@app.route('/searchText', methods=["POST"])
+def search_text():
+    request_data = request.form["query"]
+    print(request.form)
+    #request_data = json.loads(request.data)
+    print(request_data)
+    result_df = recommendations_for_textsearch_query(request_data)
+    print(result_df)
+    print(result_df.info())
+    #prod_number = result_df["product-number"]
+    # result_df["product-number"] = result_df["product-number"].values.astype(int)
+    #print(prod_number)
+    query = db.session.query(Products).filter(Products.product_number.in_(result_df["product-number"].tolist()))
+    prods = query.all()
+    prod_df  = pd.DataFrame([prod.to_dict() for prod in prods])
+    print("-----")
+    prod_number = prod_df["product_id"].tolist()
+    print(prod_number)
+    print(type(prod_number))
+    images = db.session.query(Images).filter(Images.product_id.in_(prod_number)).filter(Images.is_main_image == True).all()
+    images = pd.DataFrame([img.to_dict() for img in images])
+    print(result_df)
+    print(prod_df)
+    result_df["product-number"] = pd.to_numeric(result_df["product-number"])
+    prod_df = prod_df.merge(images, on = "product_id")
+    prod_df = prod_df.merge(result_df[["product-number","score_final"]], left_on="product_number", right_on="product-number")
+    prod_df = prod_df.sort_values("score_final", ascending=False)
+    print(prod_df)
+    print(prod_df.info())
+    print("-Im----")
+    prod_df = prod_df.to_dict("records")
+
+
+    return render_template("imageCards.html",products=prod_df)
+
+
 
 @app.route('/product_names')
 def product_names():

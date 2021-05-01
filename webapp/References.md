@@ -1,0 +1,2 @@
+- [Autocomplete](https://stackoverflow.com/questions/47331651/navbar-with-search-box-materializecss)
+- [Enter key for search bar](https://www.mysamplecode.com/2012/07/enter-key-javascript-jquery-extjs.html)

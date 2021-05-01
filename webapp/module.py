@@ -41,6 +41,15 @@ class Products(db.Model):
     def __repr__(self):
         return f'<Product : {self.product_id} number : {self.product_number} | {self.category.strip()} | {self.sub_category.strip()}>'
 
+    def to_dict(self):
+        return {
+            "product_id": self.product_id,
+            "category" : self.category.strip(),
+            "sub_category":self.sub_category.strip(),
+            "product_number": self.product_number,
+            "product_name" : self.product_name
+        }
+    
 class Interactions(db.Model):
     interaction_id = db.Column(db.Integer(),primary_key=True)
     user_id = db.Column(db.Integer(),db.ForeignKey('user.id'), nullable=False,unique=False)
@@ -52,11 +61,29 @@ class Interactions(db.Model):
     def __repr__(self):
         return f'<Interaction : {self.interaction_id} (u, p) : ({self.user_id},{self.product_id}) >'
 
+    def to_dict(self):
+        return {
+            "interaction_id" : self.interaction_id,
+            "user_id" : self.user_id,
+            "product_id" : self.product_id,
+            "rating" : self.rating,
+            "time_stamp" : self.timestamp
+        }
+
 class Images(db.Model):
     image_id = db.Column(db.Integer(), primary_key = True)
     product_id = db.Column(db.Integer(),db.ForeignKey('products.product_id'), nullable=False)
     image_path = db.Column(db.String(length=75), nullable=False)
     is_main_image = db.Column(db.Boolean(), nullable=False)
+    
 
     def __repr__(self):
         return f'<Image : {self.image_id} product : {self.product_id}, path:{self.image_path.strip()}, is_main_image:{self.is_main_image} >'
+
+    def to_dict(self):
+        return {
+            "image_id": self.image_id,
+            "product_id": self.product_id, 
+            "image_path" : self.image_path,
+            "is_main_image" : self.is_main_image
+        }

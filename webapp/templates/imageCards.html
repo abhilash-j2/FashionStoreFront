@@ -1,10 +1,7 @@
-{% extends "index.html" %}
-
+{% extends 'index.html' %}
 {% block title %}
-    Fashion Store | Browse Page
+    Fashion Store | Search Results
 {% endblock %}
-
-
 {% block body %}
 
 <h3>
@@ -27,6 +24,31 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    
+    {% for product in products %}
+    <div style="height: 150px; width: 210px; display: inline-block;">
+      <div class="card" style="width: 200px; display: inline-block;">
+        <div class="card-image" >
+          <img src="{{url_for('static', filename='images/' + product['image_path'])}}" class="img-responsive">
+          <span class="card-title">{{product["product_name"]}}</span>
+        </div>
+        <div class="card-content">
+          <p> {{product["product_name"]}}</p>
+          {% if product["score_final"] %}
+          <p> Similarity score: {{product["score_final"]}}</p>
+          {% endif %}
+        </div>
+        <div class="card-action">
+          <a href="/product/{{product['product_id']}}">View Product Page</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+</div>
+
 
 <script>
     var myData={
